@@ -71,7 +71,7 @@ CONFIG_POR_DEFECTO: dict[str, Any] = {
     "modelo": "",            # ruta al .gguf principal ("" = autodetección en ./modelo)
     "mmproj": "",            # ruta al mmproj .gguf
     "dispositivo": "auto",   # auto | cpu | <id de dispositivo, p.ej. Vulkan1>
-    "capas_gpu": 99,
+    "capas_gpu": 8,          # -ngl: cuántas capas del modelo principal se descargan a la GPU
     "hilos": 0,              # 0 = automático
     "idioma": "es",
     "top_k": 40,
@@ -383,6 +383,8 @@ def construir_comando(cfg: dict[str, Any], texto: str, salida: Path,
         "-p", texto,
         "-o", str(salida),
         "--tts-lang", str(cfg["idioma"]),
+        # Raúl 04/10/2026 23:00:00 - Hay un issue muy reciente de llama.cpp dedicado exactamente a Qwen3-TTS 1.7B: si llama-tts no recibe -c, utiliza el contexto del modelo de 32768 tokens, provocando una caché KV de alrededor de 3.5 GB por sí sola.
+        "-c", "4096",
         "-n", str(int(cfg["max_frames"])),
         "--top-k", str(int(cfg["top_k"])),
         "--top-p", str(float(cfg["top_p"])),
